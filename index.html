@@ -1,83 +1,145 @@
-<!DOCTYPE html>
-<html lang="th">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ข้อความคัดลอก</title>
-    <link rel="manifest" href="/manifest.json">
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            padding: 20px;
-        }
-        input, textarea {
-            width: 100%;
-            margin-bottom: 10px;
-            padding: 10px;
-            font-size: 16px;
-        }
-        button {
-            padding: 10px 20px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            cursor: pointer;
-        }
-        button:hover {
-            background-color: #45a049;
-        }
-    </style>
-    <script>
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('/service-worker.js').then(function(registration) {
-                console.log('ServiceWorker registration successful with scope: ', registration.scope);
-            }).catch(function(error) {
-                console.log('ServiceWorker registration failed: ', error);
-            });
-        }
-    </script>
-</head>
-<body>
-    <h2>สร้างข้อความอัตโนมัติ</h2>
-    
-    <p>เรียนพี่เป้ครับ</p>
-    <p>ขออนุญาตออกไปส่งออเดอร์</p>
-    <p>วันที่ : <span id="currentDate"></span></p>
-    <p>ออเดอร์เลขที่ : <input type="text" id="orderNumber" placeholder="กรอกเลขที่ออเดอร์"></p>
-    <p>ลูกค้าชื่อ : <input type="text" id="customerName" placeholder="กรอกชื่อลูกค้า"></p>
-    <p>จำนวนบิล : 1</p>
-    <p>ราคา : <input type="text" id="orderPrice" placeholder="กรอกราคา"></p>
-    <p>จึงเรียนมาเพื่อทราบครับ</p>
+<!DOCTYPE html> 
+<html lang="th"> 
+<head> 
+    <meta charset="UTF-8"> 
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+    <title>ข้อความคัดลอก</title> 
+    <style> 
+        body { 
+            font-family: Arial, sans-serif; 
+            padding: 20px; 
+            background-color: #121212; /* สีดำหรือสีเทาเข้ม */
+            color: #e0e0e0; /* สีอักษรที่สว่างเพื่อให้เห็นได้ชัด */
+        } 
+        input, textarea { 
+            width: 100%; 
+            margin-bottom: 10px; 
+            padding: 10px; 
+            font-size: 16px; 
+            background-color: #333; /* พื้นหลังของ input และ textarea */
+            color: #fff; /* สีข้อความใน input และ textarea */
+            border: 1px solid #444; /* ขอบของ input และ textarea */
+        } 
+        button { 
+            padding: 10px 20px; 
+            background-color: #4CAF50; 
+            color: white; 
+            border: none; 
+            cursor: pointer; 
+        } 
+        button:hover { 
+            background-color: #45a049; 
+        } 
+        fieldset { 
+            border: 1px solid #444; 
+            padding: 10px; 
+            margin-bottom: 15px; 
+            position: relative; 
+            background-color: #222; /* สีพื้นหลังของ fieldset */
+        } 
+        legend { 
+            font-weight: bold; 
+            padding: 0 10px; 
+        } 
+        .removeCustomer { 
+            position: absolute; 
+            top: 10px; 
+            right: 10px; 
+            background-color: #f44336; 
+            color: white; 
+            border: none; 
+            padding: 5px 10px; 
+            cursor: pointer; 
+        } 
+    </style> 
+</head> 
+<body> 
+    <h2>สร้างข้อความอัตโนมัติ</h2> 
+     
+    <p>เรียนพี่เป้ครับ</p> 
+    <p>ขออนุญาตออกไปส่งออเดอร์</p> 
+    <p>วันที่ : <span id="currentDate"></span></p> 
+ 
+    <!-- ส่วนข้อมูลลูกค้า --> 
+    <div id="customerFields"> 
+        <fieldset class="customer"> 
+            <legend>ข้อมูลลูกค้ารายที่ 1</legend>
+            <button class="removeCustomer" onclick="removeCustomer(this)">ลบ</button>
+            <p>ออเดอร์เลขที่ : <input type="text" name="orderNumber[]" placeholder="กรอกเลขที่ออเดอร์"></p> 
+            <p>ลูกค้าชื่อ : <input type="text" name="customerName[]" placeholder="กรอกชื่อลูกค้า"></p> 
+            <p>ราคา : <input type="text" name="orderPrice[]" placeholder="กรอกราคา"></p> 
+        </fieldset> 
+    </div> 
+ 
+    <!-- ปุ่มเพิ่มลูกค้า --> 
+    <button id="addCustomer" onclick="addCustomer()">เพิ่มลูกค้า</button> 
+    <br><br> 
+    <button onclick="copyText()">คัดลอกข้อความ</button> 
+ 
+    <script> 
+        function setCurrentDate() { 
+            var today = new Date(); 
+            var date = today.getDate() + '/' + (today.getMonth() + 1) + '/' + today.getFullYear(); 
+            document.getElementById("currentDate").innerText = date; 
+        } 
+ 
+        // ฟังก์ชันเพิ่มลูกค้าใหม่ 
+        function addCustomer() { 
+            var customerFields = document.getElementById("customerFields"); 
+            var customerCount = customerFields.getElementsByClassName("customer").length + 1;
+            var newCustomer = document.createElement("fieldset"); 
+            newCustomer.classList.add("customer"); 
+ 
+            newCustomer.innerHTML = ` 
+                <legend>ข้อมูลลูกค้ารายที่ ${customerCount}</legend>
+                <button class="removeCustomer" onclick="removeCustomer(this)">ลบ</button>
+                <p>ออเดอร์เลขที่ : <input type="text" name="orderNumber[]" placeholder="กรอกเลขที่ออเดอร์"></p> 
+                <p>ลูกค้าชื่อ : <input type="text" name="customerName[]" placeholder="กรอกชื่อลูกค้า"></p> 
+                <p>ราคา : <input type="text" name="orderPrice[]" placeholder="กรอกราคา"></p> 
+            `; 
+            customerFields.appendChild(newCustomer); 
+        } 
 
-    <button onclick="copyText()">คัดลอกข้อความ</button>
-
-    <script>
-        function setCurrentDate() {
-            var today = new Date();
-            var date = today.getDate() + '/' + (today.getMonth() + 1) + '/' + today.getFullYear();
-            document.getElementById("currentDate").innerText = date;
+        // ฟังก์ชันลบลูกค้าคนล่าสุด
+        function removeCustomer(button) {
+            var customerFields = document.getElementById("customerFields");
+            var customers = customerFields.getElementsByClassName("customer");
+            if (customers.length > 1) {
+                customerFields.removeChild(button.parentElement);
+            } else {
+                alert("ไม่สามารถลบข้อมูลลูกค้ารายเดียวได้");
+            }
         }
 
-        function copyText() {
-            var orderNumber = document.getElementById("orderNumber").value;
-            var customerName = document.getElementById("customerName").value;
-            var orderPrice = document.getElementById("orderPrice").value;
-
-            var textToCopy = `เรียนพี่เป้ครับ\nขออนุญาตออกไปส่งออเดอร์\nวันที่ : ${document.getElementById("currentDate").innerText}\nออเดอร์เลขที่ : ${orderNumber}\nลูกค้าชื่อ : ${customerName}\nจำนวนบิล : 1\nราคา : ${orderPrice}\nจึงเรียนมาเพื่อทราบครับ`;
-
-            var tempInput = document.createElement("textarea");
-            tempInput.value = textToCopy;
-            document.body.appendChild(tempInput);
-            tempInput.select();
-            document.execCommand("copy");
-            document.body.removeChild(tempInput);
-
-            alert("คัดลอกข้อความแล้ว");
-        }
-
-        window.onload = function() {
-            setCurrentDate();
-        };
-    </script>
-</body>
-</html>
+        // ฟังก์ชันคัดลอกข้อความ 
+        function copyText() { 
+            var orderNumbers = document.getElementsByName("orderNumber[]"); 
+            var customerNames = document.getElementsByName("customerName[]"); 
+            var orderPrices = document.getElementsByName("orderPrice[]"); 
+ 
+            var textToCopy = ""; 
+ 
+            for (var i = 0; i < customerNames.length; i++) { 
+                textToCopy += `เรียนพี่เป้ครับ\nขออนุญาตออกไปส่งออเดอร์\nวันที่ : ${document.getElementById("currentDate").innerText}\nออเดอร์เลขที่ : ${orderNumbers[i].value}\nลูกค้าชื่อ : ${customerNames[i].value}\nจำนวนบิล : 1\nราคา : ${orderPrices[i].value}\nจึงเรียนมาเพื่อทราบครับ`; 
+ 
+                if (i < customerNames.length - 1) { 
+                    textToCopy += "\n------------------------------\n"; 
+                } 
+            } 
+ 
+            var tempInput = document.createElement("textarea"); 
+            tempInput.value = textToCopy; 
+            document.body.appendChild(tempInput); 
+            tempInput.select(); 
+            document.execCommand("copy"); 
+            document.body.removeChild(tempInput); 
+ 
+            alert("คัดลอกข้อความแล้ว"); 
+        } 
+ 
+        window.onload = function() { 
+            setCurrentDate(); 
+        }; 
+    </script> 
+</body> 
+</html>  
