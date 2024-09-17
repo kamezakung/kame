@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ข้อความคัดลอก</title>
+    <link rel="manifest" href="/manifest.json">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+        input, textarea {
+            width: 100%;
+            margin-bottom: 10px;
+            padding: 10px;
+            font-size: 16px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/service-worker.js').then(function(registration) {
+                console.log('ServiceWorker registration successful with scope: ', registration.scope);
+            }).catch(function(error) {
+                console.log('ServiceWorker registration failed: ', error);
+            });
+        }
+    </script>
+</head>
+<body>
+    <h2>สร้างข้อความอัตโนมัติ</h2>
+    
+    <p>เรียนพี่เป้ครับ</p>
+    <p>ขออนุญาตออกไปส่งออเดอร์</p>
+    <p>วันที่ : <span id="currentDate"></span></p>
+    <p>ออเดอร์เลขที่ : <input type="text" id="orderNumber" placeholder="กรอกเลขที่ออเดอร์"></p>
+    <p>ลูกค้าชื่อ : <input type="text" id="customerName" placeholder="กรอกชื่อลูกค้า"></p>
+    <p>จำนวนบิล : 1</p>
+    <p>ราคา : <input type="text" id="orderPrice" placeholder="กรอกราคา"></p>
+    <p>จึงเรียนมาเพื่อทราบครับ</p>
+
+    <button onclick="copyText()">คัดลอกข้อความ</button>
+
+    <script>
+        function setCurrentDate() {
+            var today = new Date();
+            var date = today.getDate() + '/' + (today.getMonth() + 1) + '/' + today.getFullYear();
+            document.getElementById("currentDate").innerText = date;
+        }
+
+        function copyText() {
+            var orderNumber = document.getElementById("orderNumber").value;
+            var customerName = document.getElementById("customerName").value;
+            var orderPrice = document.getElementById("orderPrice").value;
+
+            var textToCopy = `เรียนพี่เป้ครับ\nขออนุญาตออกไปส่งออเดอร์\nวันที่ : ${document.getElementById("currentDate").innerText}\nออเดอร์เลขที่ : ${orderNumber}\nลูกค้าชื่อ : ${customerName}\nจำนวนบิล : 1\nราคา : ${orderPrice}\nจึงเรียนมาเพื่อทราบครับ`;
+
+            var tempInput = document.createElement("textarea");
+            tempInput.value = textToCopy;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            document.execCommand("copy");
+            document.body.removeChild(tempInput);
+
+            alert("คัดลอกข้อความแล้ว");
+        }
+
+        window.onload = function() {
+            setCurrentDate();
+        };
+    </script>
+</body>
+</html>
